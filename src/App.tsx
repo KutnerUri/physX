@@ -1,7 +1,7 @@
 import { ReactNode, ComponentType, useState, useEffect } from "react";
 import "./App.css";
 import { Force, Matter, Momentum, Position } from "./Matter";
-import { createForce, METER, Physics, posToAbs, SECOND_IN_SIM } from "./Physics";
+import { createForce, SIM_METER, Physics, posToAbs, SIM_SECOND } from "./Physics";
 import styles from "./styles.module.scss";
 
 interface Displayable extends Matter {
@@ -39,23 +39,23 @@ class BallItem implements Displayable {
 const physX = new Physics<Displayable>();
 const throwForce = createForce(2, 15);
 const ball = new BallItem({
-  pos: [1 * METER, 1 * METER],
+  pos: [1 * SIM_METER, 1 * SIM_METER],
   forces: [throwForce],
 });
 setTimeout(
   () => (ball.forces = ball.forces.filter((f) => f !== throwForce)),
-  1 * SECOND_IN_SIM
+  1 * SIM_SECOND
 );
 
 physX.add(ball);
 
 const rnd = (limit: number) => Math.round(Math.random() * limit);
 const balls = [
-  new BallItem({ pos: [METER, METER] }),
-  new BallItem({ pos: [rnd(3 * METER), rnd(3 * METER)] }),
-  new BallItem({ pos: [rnd(5 * METER), rnd(5 * METER)] }),
-  new BallItem({ pos: [rnd(5 * METER), rnd(5 * METER)] }),
-  new BallItem({ pos: [rnd(5 * METER), rnd(5 * METER)] }),
+  new BallItem({ pos: [SIM_METER, SIM_METER] }),
+  new BallItem({ pos: [rnd(3 * SIM_METER), rnd(3 * SIM_METER)] }),
+  new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
+  new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
+  new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
 ];
 balls.forEach((b) => physX.add(b));
 

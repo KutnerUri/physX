@@ -4,18 +4,16 @@ import { V } from "./V";
 
 const TIMEOUT_SECOND = 1000; // system constant, do not change
 const FPS = 30;
-export const METER = 1000;
-
-// scale:
+export const SIM_METER = 1000;
+export const SIM_SECOND = 1000;
 const METER_IN_PIXELS = 100;
-export const SECOND_IN_SIM = 1000;
 
 // world info
 const GRAVITY_SCALAR = -9.807;
 
 // derived:
-const pixelScale = METER_IN_PIXELS / METER;
-const timeScale = TIMEOUT_SECOND / SECOND_IN_SIM;
+const pixelScale = METER_IN_PIXELS / SIM_METER;
+const timeScale = TIMEOUT_SECOND / SIM_SECOND;
 const TICK_SCALE = timeScale / FPS;
 const TICK_REAL_MS = TIMEOUT_SECOND / FPS;
 
@@ -30,7 +28,7 @@ export function posToAbs(pos: Position): CSSProperties {
 }
 
 export function createForce(...vector: Force): Force {
-  return V.from(vector).scalar(METER).value;
+  return V.from(vector).scalar(SIM_METER).value;
 }
 
 const Gravity: Force = createForce(0, GRAVITY_SCALAR);

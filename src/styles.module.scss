@@ -1,0 +1,35 @@
+html,
+body,
+:global(#root) {
+  height: 100%;
+}
+
+.arena {
+  position: absolute;
+
+  margin: 4px;
+  border: 1px solid black;
+  height: 98%;
+  width: 98%;
+  box-sizing: border-box;
+  background: lightgray;
+}
+
+.ball {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  border-radius: 100%;
+
+  background: red;
+}
+
+.reference {
+  height: 100px;
+  width: 100px;
+  background: blue;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+}

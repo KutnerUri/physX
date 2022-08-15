@@ -1,7 +1,7 @@
 import { ReactNode, ComponentType, useState, useEffect } from "react";
 import "./App.css";
 import { Force, Matter, Momentum, Position } from "./Matter";
-import { createForce, METER, Physics, posToAbs, SECOND } from "./Physics";
+import { createForce, METER, Physics, posToAbs, SECOND_IN_SIM } from "./Physics";
 import styles from "./styles.module.scss";
 
 interface Displayable extends Matter {
@@ -37,14 +37,14 @@ class BallItem implements Displayable {
 }
 
 const physX = new Physics<Displayable>();
-const throwForce = createForce(5, 15);
+const throwForce = createForce(2, 15);
 const ball = new BallItem({
   pos: [1 * METER, 1 * METER],
   forces: [throwForce],
 });
 setTimeout(
   () => (ball.forces = ball.forces.filter((f) => f !== throwForce)),
-  0.5 * SECOND
+  1 * SECOND_IN_SIM
 );
 
 physX.add(ball);

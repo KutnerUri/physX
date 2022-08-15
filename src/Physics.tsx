@@ -2,16 +2,25 @@ import { CSSProperties } from "react";
 import { Force, Matter, Position } from "./Matter";
 import { V } from "./V";
 
-const FPS = 60;
-export const SECOND = 1000; // milliseconds
-export const METER = 1;
-const METER_IN_PIXELS = 100;
+const TIMEOUT_SECOND = 1000; // system constant, do not change
+const FPS = 30;
+export const METER = 1000;
 
-const PIXEL_SCALE = METER_IN_PIXELS / METER;
-const TIME_SCALE = 1 / FPS;
+// scale:
+const METER_IN_PIXELS = 100;
+export const SECOND_IN_SIM = 1000;
+
+// world info
+const GRAVITY_SCALAR = -9.807;
+
+// derived:
+const pixelScale = METER_IN_PIXELS / METER;
+const timeScale = TIMEOUT_SECOND / SECOND_IN_SIM;
+const TICK_SCALE = timeScale / FPS;
+const TICK_REAL_MS = TIMEOUT_SECOND / FPS;
 
 function meterToPixel(meters: number) {
-  return Math.round(meters * PIXEL_SCALE);
+  return Math.round(meters * pixelScale);
 }
 
 export function posToAbs(pos: Position): CSSProperties {
@@ -19,12 +28,6 @@ export function posToAbs(pos: Position): CSSProperties {
 
   return { left: meterToPixel(x), bottom: meterToPixel(y) };
 }
-
-// world info
-const GRAVITY_SCALAR = -9.807;
-
-// derived:
-// const tickDuration = SECOND * TIME_SCALE;
 
 export function createForce(...vector: Force): Force {
   return V.from(vector).scalar(METER).value;
@@ -38,7 +41,7 @@ export class Physics<T extends Matter> {
   private items = new Set<T>();
 
   start() {
-    const tid = setInterval(() => this.tick(), 1000 / FPS);
+    const tid = setInterval(() => this.tick(), TICK_REAL_MS);
     const stop = () => {
       clearInterval(tid);
     };
@@ -51,26 +54,26 @@ export class Physics<T extends Matter> {
   }
 
   private tick() {
-    const collisions = this.detectCollisions();
-    collisions.forEach(([item, collided]) => {
-      const v = V.diff(item.pos, collided.pos).scalar(0.001).value;
+    // const collisions = this.detectCollisions();
+    // collisions.forEach(([item, collided]) => {
+    //   const v = V.diff(item.pos, collided.pos).scalar(0.001).value;
 
-      item.forces.push(v);
+    //   item.forces.push(v);
 
-      setTimeout(() => {
-        item.forces = item.forces.filter((x) => x !== v);
-      }, 10);
-    });
+    //   setTimeout(() => {
+    //     item.forces = item.forces.filter((x) => x !== v);
+    //   }, 10);
+    // });
 
     this.items.forEach((item) => {
       const moment = V.from([0, 0])
         .add(...item.forces)
-        .scalar(TIME_SCALE)
+        .scalar(TICK_SCALE)
         .add(item.moment);
       item.moment = moment.value;
 
       const translation = moment;
-      const nextPos = translation.scalar(TIME_SCALE).add(item.pos).value;
+      const nextPos = translation.scalar(TICK_SCALE).add(item.pos).value;
 
       // TODO - reset moment when getting to bottom
       item.pos = DontEscape(nextPos);

@@ -5,7 +5,7 @@ import { Vector } from "./Matter";
 //   return diff < threshold;
 // }
 export class V {
-  constructor(public value: Vector = [0, 0]) { }
+  constructor(public value: Vector = [0, 0]) {}
   add(...vectors: Vector[]) {
     const next = vectors.reduce(
       (prev, current) => [prev[0] + current[0], prev[1] + current[1]],
@@ -34,5 +34,14 @@ export class V {
 
   static from(value: Vector) {
     return new V(value);
+  }
+
+  static innerProduct(a: Vector, b: Vector) {
+    return a
+      .map((aVal, index) => {
+        const bVal = b[index];
+        return aVal * bVal;
+      })
+      .reduce((prev, next) => prev + next);
   }
 }

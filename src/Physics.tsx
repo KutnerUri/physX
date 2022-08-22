@@ -1,9 +1,10 @@
 import { CSSProperties } from "react";
 import { Force, Matter, Position } from "./Matter";
+import { momentumCollide } from "./momentum-collision";
 import { V } from "./V";
 
 const TIMEOUT_SECOND = 1000; // system constant, do not change
-const FPS = 30;
+const FPS = 60;
 export const SIM_METER = 1000;
 export const SIM_SECOND = 1000;
 const METER_IN_PIXELS = 100;
@@ -17,7 +18,7 @@ const timeScale = TIMEOUT_SECOND / SIM_SECOND;
 const TICK_SCALE = timeScale / FPS;
 const TICK_REAL_MS = TIMEOUT_SECOND / FPS;
 
-function meterToPixel(meters: number) {
+export function meterToPixel(meters: number) {
   return Math.round(meters * pixelScale);
 }
 
@@ -52,16 +53,7 @@ export class Physics<T extends Matter> {
   }
 
   private tick() {
-    // const collisions = this.detectCollisions();
-    // collisions.forEach(([item, collided]) => {
-    //   const v = V.diff(item.pos, collided.pos).scalar(0.001).value;
-
-    //   item.forces.push(v);
-
-    //   setTimeout(() => {
-    //     item.forces = item.forces.filter((x) => x !== v);
-    //   }, 10);
-    // });
+    this.handleCollisions();
 
     this.items.forEach((item) => {
       const moment = V.from([0, 0])
@@ -80,13 +72,34 @@ export class Physics<T extends Matter> {
     this.options.onChange?.(this.list());
   }
 
-  detectCollisions() {
+  private handleCollisions() {
+    const collisions = this.detectCollisions();
+    collisions.forEach(([item, collided]) => {
+      const nextItemMoment = momentumCollide(item, collided);
+      const nextCollidedMoment = momentumCollide(collided, item);
+      item.moment = nextItemMoment;
+      collided.moment = nextCollidedMoment;
+    });
+  }
+
+  private detectCollisions() {
     return Array.from(this.items)
       .map((item) => {
-        return Array.from(this.items)
-          .filter((other) => item !== other)
-          .filter((other) => V.diff(item.pos, other.pos).length() < 10000)
-          .map((other) => [item, other]);
+        return (
+          Array.from(this.items)
+            .filter((other) => item !== other)
+            .filter(
+              (other) =>
+                V.diff(item.pos, other.pos).length() <
+                item.radius + other.radius
+            )
+            // remove duplicates - [b1, b2], [b2,b1]
+            .filter((other) => {
+              const diff = V.diff(other.pos, item.pos).value;
+              return diff[0] > 0 || (diff[0] === 0 && diff[1] > 0);
+            })
+            .map((other) => [item, other])
+        );
       })
       .flat();
   }

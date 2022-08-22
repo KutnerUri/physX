@@ -1,11 +1,20 @@
 import { ReactNode, ComponentType, useState, useEffect } from "react";
 import "./App.css";
 import { Force, Matter, Momentum, Position } from "./Matter";
-import { createForce, SIM_METER, Physics, posToAbs, SIM_SECOND } from "./Physics";
+import {
+  createForce,
+  SIM_METER,
+  Physics,
+  posToAbs,
+  SIM_SECOND,
+  meterToPixel,
+} from "./Physics";
 import styles from "./styles.module.scss";
+import { V } from "./V";
 
 interface Displayable extends Matter {
   id: string;
+  color?: string;
   Component: ComponentType<{ item: Displayable }>;
 }
 
@@ -16,16 +25,19 @@ class BallItem implements Displayable {
     pos,
     mass = 1,
     forces = [],
+    color = "red",
   }: {
     pos: Position;
     mass?: number;
     forces?: Force[];
+    color?: string;
   }) {
     this.id = "ball" + ++counter;
     this.mass = mass;
     this.pos = pos;
     this.forces = forces;
     this.moment = [0, 0];
+    this.color = color;
   }
 
   id: string;
@@ -34,30 +46,47 @@ class BallItem implements Displayable {
   mass: number;
   forces: Force[];
   moment: Momentum;
+  color: string;
+
+  radius = 80;
+  get center(): Position {
+    return V.from(this.pos).scalar(this.radius).value;
+  }
 }
 
 const physX = new Physics<Displayable>();
-const throwForce = createForce(2, 15);
+const throwForce1 = createForce(5, 20);
+const throwForce2 = createForce(-5, 20);
 const ball = new BallItem({
-  pos: [1 * SIM_METER, 1 * SIM_METER],
-  forces: [throwForce],
+  pos: [1 * SIM_METER, 0],
+  forces: [throwForce1],
+  color: "brown",
 });
-setTimeout(
-  () => (ball.forces = ball.forces.filter((f) => f !== throwForce)),
-  1 * SIM_SECOND
-);
+const ball2 = new BallItem({
+  pos: [5 * SIM_METER, 0],
+  forces: [throwForce2],
+  color: "darkgreen",
+});
+
+setTimeout(() => {
+  ball.forces = ball.forces.filter((f) => f !== throwForce1);
+  ball2.forces = ball2.forces.filter((f) => f !== throwForce2);
+}, 0.5 * SIM_SECOND);
 
 physX.add(ball);
+physX.add(ball2);
 
-const rnd = (limit: number) => Math.round(Math.random() * limit);
-const balls = [
-  new BallItem({ pos: [SIM_METER, SIM_METER] }),
-  new BallItem({ pos: [rnd(3 * SIM_METER), rnd(3 * SIM_METER)] }),
-  new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
-  new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
-  new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
-];
-balls.forEach((b) => physX.add(b));
+// // const rnd = (limit: number) => Math.round(Math.random() * limit);
+// const balls = [
+//   ball,
+//   ball2,
+//   // new BallItem({ pos: [SIM_METER, SIM_METER] }),
+//   // new BallItem({ pos: [rnd(3 * SIM_METER), rnd(3 * SIM_METER)] }),
+//   // new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
+//   // new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
+//   // new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
+// ];
+// balls.forEach((b) => physX.add(b));
 
 function App() {
   const [items, setItems] = useState([] as Displayable[]);
@@ -82,7 +111,17 @@ function Arena({ children }: { children: ReactNode }) {
 }
 
 function Ball({ item }: { item: Displayable }) {
-  return <div className={styles.ball} style={posToAbs(item.pos)} />;
+  return (
+    <div
+      className={styles.ball}
+      style={{
+        ...posToAbs(item.pos),
+        width: meterToPixel(item.radius * 2),
+        height: meterToPixel(item.radius * 2),
+        background: item.color,
+      }}
+    />
+  );
 }
 
 export default App;

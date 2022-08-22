@@ -1,8 +1,10 @@
 - [v] "touching"
 - [v] "collision"
+- [v] cancel out the frame rate from the force
 - [ ] attach a force to a matter (for x time)
-    .applyForce(force, duration)
-- [ ] cancel out the frame rate from the force
-- [ ] collision using momentum
-- [ ] collision friction
+      .applyForce(force, duration)
+- [v] collision using momentum
+- [ ] tests
+- [ ] square collisions
+- [ ] friction / collision friction
 - [ ] collision wall around the Arena

@@ -9,4 +9,8 @@ export interface Matter {
   mass: number;
   forces: Force[];
   moment: Momentum;
+
+  // TODO
+  center: Position;
+  radius: number;
 }

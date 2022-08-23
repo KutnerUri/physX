@@ -1,5 +1,5 @@
 import { Matter, Momentum } from "./Matter";
-import { V } from "./V";
+import { Vector } from "./V";
 
 // copied off the internet
 // https://www.youtube.com/watch?v=eED4bSkYCB8
@@ -9,27 +9,27 @@ import { V } from "./V";
 // v1' = v1 - ------- * ------------------ * (C1 - C2)
 //            (m1+m2)     ||C1 - C2||^2
 
-export function momentumCollide(a: Matter, b: Matter): Momentum {
+export function momentumCollide(a: Matter, b: Matter, ): Momentum {
   // 2*m2 / (m1+m2)
   const massScalar = (2 * b.mass) / (a.mass + b.mass);
   // ||C1-C2||
-  const distance = V.diff(a.center, b.center).length();
+  const distance = Vector.diff(a.center, b.center).length();
 
   // v1 - v2
-  const momentumDiff = V.diff(a.moment, b.moment);
+  const momentumDiff = Vector.diff(a.moment, b.moment);
 
   // C1 - C2
-  const distanceDiff = V.diff(a.center, b.center);
+  const distanceDiff = Vector.diff(a.center, b.center);
 
   // <v1-v2,C1-C2>
-  const product = V.innerProduct(momentumDiff.value, distanceDiff.value);
+  const product = Vector.innerProduct(momentumDiff.value, distanceDiff.value);
 
   const scalar = (massScalar * product) / Math.pow(distance, 2);
 
   // the momentum applied
   const reaction = distanceDiff.scalar(scalar);
 
-  return V.diff(a.moment, reaction.value).value;
+  return Vector.diff(a.moment, reaction.value).value;
 }
 
 

@@ -1,16 +1,10 @@
 import { ReactNode, ComponentType, useState, useEffect } from "react";
 import "./App.css";
+import { PhysCanvas } from "./canvas";
 import { Force, Matter, Momentum, Position } from "./Matter";
-import {
-  createForce,
-  SIM_METER,
-  Physics,
-  posToAbs,
-  SIM_SECOND,
-  meterToPixel,
-} from "./Physics";
+import { Physics } from "./Physics";
 import styles from "./styles.module.scss";
-import { V } from "./V";
+import { Vector } from "./V";
 
 interface Displayable extends Matter {
   id: string;
@@ -50,43 +44,32 @@ class BallItem implements Displayable {
 
   radius = 80;
   get center(): Position {
-    return V.from(this.pos).scalar(this.radius).value;
+    return Vector.from(this.pos).scalar(this.radius).value;
   }
 }
 
 const physX = new Physics<Displayable>();
-const throwForce1 = createForce(5, 20);
-const throwForce2 = createForce(-5, 20);
-const ball = new BallItem({
-  pos: [1 * SIM_METER, 0],
-  forces: [throwForce1],
-  color: "brown",
-});
+const canvas = new PhysCanvas();
+const ball = new BallItem({ pos: physX.createPosition(1, 0), color: "brown" });
 const ball2 = new BallItem({
-  pos: [5 * SIM_METER, 0],
-  forces: [throwForce2],
+  pos: physX.createPosition(5, 0),
   color: "darkgreen",
 });
 
-setTimeout(() => {
-  ball.forces = ball.forces.filter((f) => f !== throwForce1);
-  ball2.forces = ball2.forces.filter((f) => f !== throwForce2);
-}, 0.5 * SIM_SECOND);
-
 physX.add(ball);
 physX.add(ball2);
+physX.applyForce(ball, [5, 20], 0.5);
+physX.applyForce(ball2, [-5, 20], 0.5);
 
-// // const rnd = (limit: number) => Math.round(Math.random() * limit);
-// const balls = [
-//   ball,
-//   ball2,
-//   // new BallItem({ pos: [SIM_METER, SIM_METER] }),
-//   // new BallItem({ pos: [rnd(3 * SIM_METER), rnd(3 * SIM_METER)] }),
-//   // new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
-//   // new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
-//   // new BallItem({ pos: [rnd(5 * SIM_METER), rnd(5 * SIM_METER)] }),
-// ];
-// balls.forEach((b) => physX.add(b));
+const rnd = (limit: number) => Math.random() * limit;
+const balls = [
+  new BallItem({ pos: physX.createPosition(1, 1) }),
+  new BallItem({ pos: physX.createPosition(rnd(3), rnd(3)) }),
+  new BallItem({ pos: physX.createPosition(rnd(5), rnd(5)) }),
+  new BallItem({ pos: physX.createPosition(rnd(5), rnd(5)) }),
+  new BallItem({ pos: physX.createPosition(rnd(5), rnd(5)) }),
+];
+balls.forEach((b) => physX.add(b));
 
 function App() {
   const [items, setItems] = useState([] as Displayable[]);
@@ -115,9 +98,7 @@ function Ball({ item }: { item: Displayable }) {
     <div
       className={styles.ball}
       style={{
-        ...posToAbs(item.pos),
-        width: meterToPixel(item.radius * 2),
-        height: meterToPixel(item.radius * 2),
+        ...canvas.projectStyles(item),
         background: item.color,
       }}
     />

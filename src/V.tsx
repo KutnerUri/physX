@@ -1,26 +1,22 @@
-import { Vector } from "./Matter";
+// TODO - force V to have consistent length
 
-// function isNear(a: Position, b: Position, threshold: number) {
-//   const diff = V.diff(a, b).length();
-//   return diff < threshold;
-// }
-export class V {
-  constructor(public value: Vector = [0, 0]) {}
-  add(...vectors: Vector[]) {
-    const next = vectors.reduce(
-      (prev, current) => [prev[0] + current[0], prev[1] + current[1]],
-      this.value
-    );
+export class Vector<V extends number[]> {
+  constructor(public value: V) {}
 
-    return new V(next);
+  /** add two or more vectors */
+  add(...vectors: V[]) {
+    const next = vectors.reduce(addVectors, this.value);
+    return new Vector(next);
   }
 
+  /** multiply vector by a constant */
   scalar(value: number) {
-    const next = this.value.map((v) => v * value) as Vector;
-    return new V(next);
+    const next = this.value.map((v) => v * value) as V;
+    return new Vector(next);
   }
 
-  length() {
+  // || (a1, a2, ...) ||  = sqart(a1^2, a2^2, ...)
+  length(): number {
     return Math.round(
       Math.sqrt(
         this.value.reduce((prev, current) => prev + current * current, 0)
@@ -28,15 +24,15 @@ export class V {
     );
   }
 
-  static diff(a: Vector, b: Vector) {
-    return V.from(b).scalar(-1).add(a);
+  static diff<V extends Array<number>>(a: V, b: V) {
+    return Vector.from(b).scalar(-1).add(a);
   }
 
-  static from(value: Vector) {
-    return new V(value);
+  static from<V extends Array<number>>(value: V) {
+    return new Vector(value);
   }
 
-  static innerProduct(a: Vector, b: Vector) {
+  static innerProduct<V extends Array<number>>(a: V, b: V) {
     return a
       .map((aVal, index) => {
         const bVal = b[index];
@@ -44,4 +40,8 @@ export class V {
       })
       .reduce((prev, next) => prev + next);
   }
+}
+
+function addVectors<V extends Array<number>>(v1: V, v2: V) {
+  return v1.map((value, idx) => value + v2[idx]) as V;
 }

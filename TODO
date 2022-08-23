@@ -4,7 +4,9 @@
 - [ ] attach a force to a matter (for x time)
       .applyForce(force, duration)
 - [v] collision using momentum
+- [v] pass constants in constructor
 - [ ] tests
 - [ ] square collisions
 - [ ] friction / collision friction
 - [ ] collision wall around the Arena
+- [ ] improved collision detection with K-D trees

@@ -1,10 +1,10 @@
 import { ReactNode, ComponentType, useState, useEffect } from "react";
 import "./App.css";
 import { PhysCanvas } from "./canvas";
-import { Force, Matter, Momentum, Position } from "./Matter";
+import { Force, Matter, Position } from "./Matter";
+import { Ball } from "./phys-x/ball";
 import { Physics } from "./Physics";
 import styles from "./styles.module.scss";
-import { Vector } from "./V";
 
 interface Displayable extends Matter {
   id: string;
@@ -14,38 +14,21 @@ interface Displayable extends Matter {
 
 var counter = 0;
 
-class BallItem implements Displayable {
-  constructor({
-    pos,
-    mass = 1,
-    forces = [],
-    color = "red",
-  }: {
+class BallItem extends Ball {
+  constructor(options: {
     pos: Position;
     mass?: number;
     forces?: Force[];
     color?: string;
   }) {
+    super(options);
     this.id = "ball" + ++counter;
-    this.mass = mass;
-    this.pos = pos;
-    this.forces = forces;
-    this.moment = [0, 0];
-    this.color = color;
+    this.color = options.color || "red";
   }
 
   id: string;
-  Component = Ball;
-  pos: Position;
-  mass: number;
-  forces: Force[];
-  moment: Momentum;
+  Component = ReactBall;
   color: string;
-
-  radius = 80;
-  get center(): Position {
-    return Vector.from(this.pos).scalar(this.radius).value;
-  }
 }
 
 const physX = new Physics<Displayable>();
@@ -93,7 +76,7 @@ function Arena({ children }: { children: ReactNode }) {
   return <div className={styles.arena}>{children}</div>;
 }
 
-function Ball({ item }: { item: Displayable }) {
+function ReactBall({ item }: { item: Displayable }) {
   return (
     <div
       className={styles.ball}

@@ -10,3 +10,5 @@
 - [ ] friction / collision friction
 - [ ] collision wall around the Arena
 - [ ] improved collision detection with K-D trees
+- [ ] handle "weird" collisions
+      - probably caused when objects are too fast and collied when overlapping ( [  ) ]
